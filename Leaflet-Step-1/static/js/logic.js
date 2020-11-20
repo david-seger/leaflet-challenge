@@ -42,7 +42,7 @@ var initialLayer = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/
 
 var myMap = L.map("mapid", {
   center: [51.505, -0.09],
-  zoom: 3
+  zoom: 2
 });
 
 // Add myMap to the initial layer
@@ -68,34 +68,35 @@ function earthquakeMarkerSize(mag) {
   } 
 
 // Get Marker Color based on the depth of the earthquake.
+
   function earthquakeMarkerColor(depth) {
     if (depth <= 10) {
         return("#DAF7A6");
     } else if ((depth > 10) && (depth <= 20)) {
-        return("#FFC300");
+        return("#F9E79F");
     } else if ((depth > 20) && (depth <= 30)) {
-        return("#FF5733");
+        return("#EDBB99");
     } else if ((depth > 30) && (depth <= 40)) {
-        return("#C70039");
+        return("#D6EAF8");
     } else if ((depth > 40) && (depth <= 50)) {
-        return("#900C3F");
+        return("#D7BDE2");
     } else {
-        return("#581845");
+        return("#CD6155 ");
     };
   } 
 
-//Function to format circle marker for each earthquake
+// Function to format circle marker for each earthquake
 
 function styleCircle(feature) 
 {
   return {
     opacity: 1,
-    fillOpacity: 0.75,
+    fillOpacity: 1.00,
     fillColor: earthquakeMarkerColor(feature.geometry.coordinates[2]),
     color: "#000000",
     radius: earthquakeMarkerSize(feature.properties.mag),
     stroke: true,
-    weight: 0.5
+    weight: 1.0
   }
 };
 
@@ -105,7 +106,8 @@ baseLayer = new L.LayerGroup();
 
 d3.json(queryUrl, function (data) 
 {
-  //Add geoJson layer
+  //Add geoJSON data to the map.
+  
   L.geoJson(data, {
     pointToLayer: function (feature, latlng) {
       return L.circleMarker(latlng);
@@ -123,33 +125,24 @@ d3.json(queryUrl, function (data)
   //Place Legend of Depth colors in bottom right of map.
 
   var legend = L.control({position: "bottomright"});
-  legend.onAdd = function(myMap) 
-  {
+  legend.onAdd = function(data) { 
         //Add legend details
-        var div = L.DomUtil.create("div", "info legend"),
+        var div = L.DomUtil.create("div", "info legend leaflet-control"),
         grades = [10, 20, 30, 40, 50, 60],
-        labels = ['<strong>Depth Categories</strong'];
-        
-        var colors =
-          [
-            "#DAF7A6",
-            "#FFC300",
-            "#FF5733",
-            "#C70039",
-            "#900C3F",
-            "#581845"
-          ];
-
+        categories=['00 - 10', '11 - 20', '21 - 30', '31 - 40', '41 - 50', '> 50'],
+        colors =["#DAF7A6","#F9E79F","#EDBB99","#D6EAF8","#D7BDE2","#CD6155"];
+        //Add legend title
+        div.innerHTML += '<b>Quake Depth</b><br>';
         // Looping through our intervals to generate a label with a colored square for each interval.
-        for (var i = 0; i < feature.geometry.coordinates[2]; i++) 
+        for (var i = 0; i <6; i++) 
         {
           div.innerHTML +=
-            labels.push( "<i style='background: " + colors[i] + "'></i> " +
-            grades[i] + (grades[i + 1] ? "&ndash;" + grades[i + 1] + "<br>" : "+"));
+             "<i style='background: " + colors[i] + "'>" +
+            categories[i] + "<br></i>"
         }
-        
+             
         return div;
-
+      
   };
 
   //Add legend to map
